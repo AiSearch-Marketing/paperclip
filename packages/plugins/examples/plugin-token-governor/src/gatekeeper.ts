@@ -96,11 +96,12 @@ export async function loadAgentMap(
   ctx: PluginContext,
   companyId: string,
 ): Promise<Map<string, AgentRecord>> {
-  const agents = (await ctx.agents.list({
+  const rawAgents = await ctx.agents.list({
     companyId,
     limit: 500,
     offset: 0,
-  })) as AgentRecord[];
+  });
+  const agents = rawAgents as unknown as AgentRecord[];
   const map = new Map<string, AgentRecord>();
   for (const agent of agents) {
     map.set(agent.id, agent);
@@ -156,7 +157,7 @@ export async function enrollAgent(
   // Only pause if the agent is currently idle (don't interrupt running agents)
   if (agent.status === "idle") {
     try {
-      await ctx.agents.pause({ agentId: agent.id, companyId: agent.companyId });
+      await ctx.agents.pause(agent.id, agent.companyId);
     } catch {
       // Agent may already be paused or in a non-pausable state
     }
@@ -174,7 +175,7 @@ export async function unenrollAgent(
   managed.delete(agent.id);
   if (agent.status === "paused") {
     try {
-      await ctx.agents.resume({ agentId: agent.id, companyId: agent.companyId });
+      await ctx.agents.resume(agent.id, agent.companyId);
     } catch {
       // Agent may not be in a resumable state
     }
@@ -193,12 +194,10 @@ export async function wakeAgent(
   try {
     // Resume the agent first
     if (agent.status === "paused") {
-      await ctx.agents.resume({ agentId: agent.id, companyId: agent.companyId });
+      await ctx.agents.resume(agent.id, agent.companyId);
     }
     // Invoke it with the wake reason
-    await ctx.agents.invoke({
-      agentId: agent.id,
-      companyId: agent.companyId,
+    await ctx.agents.invoke(agent.id, agent.companyId, {
       reason,
     });
     return true;
@@ -216,7 +215,7 @@ export async function rePauseAgent(
   companyId: string,
 ): Promise<boolean> {
   try {
-    await ctx.agents.pause({ agentId, companyId });
+    await ctx.agents.pause(agentId, companyId);
     return true;
   } catch {
     return false;

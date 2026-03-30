@@ -413,9 +413,12 @@ function RecommendationsPanel({
 export function GovernorPage({ context }: PluginPageProps) {
   const hostCtx = useHostContext();
   const companyId = hostCtx?.companyId ?? "";
+  const [refreshKey, setRefreshKey] = useState(0);
+  const refresh = () => setRefreshKey((k) => k + 1);
 
-  const { data, loading, error, refetch } = usePluginData<OverviewData>("overview", {
+  const overview = usePluginData<OverviewData>("overview", {
     companyId,
+    _r: refreshKey,
   });
 
   const enrollAction = usePluginAction("enroll-agent");
@@ -428,29 +431,31 @@ export function GovernorPage({ context }: PluginPageProps) {
   const streamEvent = usePluginStream(STREAM_CHANNELS.wakeLog);
 
   const handleEnroll = async (agentId: string) => {
-    await enrollAction.execute({ agentId, companyId });
-    refetch();
+    await enrollAction({ agentId, companyId });
+    refresh();
   };
 
   const handleUnenroll = async (agentId: string) => {
-    await unenrollAction.execute({ agentId, companyId });
-    refetch();
+    await unenrollAction({ agentId, companyId });
+    refresh();
   };
 
   const handleForceWake = async (agentId: string) => {
-    await forceWakeAction.execute({ agentId, companyId });
-    refetch();
+    await forceWakeAction({ agentId, companyId });
+    refresh();
   };
 
   const handleDismiss = async (recommendationId: string) => {
-    await dismissAction.execute({ recommendationId });
-    refetch();
+    await dismissAction({ recommendationId });
+    refresh();
   };
 
   const handleEnrollAll = async () => {
-    await enrollAllAction.execute({ companyId });
-    refetch();
+    await enrollAllAction({ companyId });
+    refresh();
   };
+
+  const { data, loading, error } = overview;
 
   if (loading) {
     return (
@@ -465,7 +470,7 @@ export function GovernorPage({ context }: PluginPageProps) {
       <div style={pageStyle}>
         <div style={cardStyle}>
           <p style={{ color: "#ef4444" }}>Failed to load governor data.</p>
-          <button style={btnStyle} onClick={refetch}>Retry</button>
+          <button style={btnStyle} onClick={refresh}>Retry</button>
         </div>
       </div>
     );
@@ -476,7 +481,7 @@ export function GovernorPage({ context }: PluginPageProps) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 600 }}>Token Governor</h2>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button style={btnStyle} onClick={refetch}>Refresh</button>
+          <button style={btnStyle} onClick={refresh}>Refresh</button>
           <button style={btnPrimaryStyle} onClick={handleEnrollAll}>
             Enroll All Agents
           </button>

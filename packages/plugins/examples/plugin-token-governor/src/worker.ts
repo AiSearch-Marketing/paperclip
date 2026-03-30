@@ -107,7 +107,7 @@ async function handleIssueEvent(ctx: PluginContext, event: PluginEvent): Promise
     }, config);
 
     // Emit to stream for live UI updates
-    ctx.stream.publish(STREAM_CHANNELS.wakeLog, companyId, {
+    ctx.streams.emit(STREAM_CHANNELS.wakeLog, companyId, {
       action: "approved",
       agentId: assigneeAgentId,
       agentName: target.name,
@@ -128,7 +128,7 @@ async function handleIssueEvent(ctx: PluginContext, event: PluginEvent): Promise
       durationMs: null,
     }, config);
 
-    ctx.stream.publish(STREAM_CHANNELS.wakeLog, companyId, {
+    ctx.streams.emit(STREAM_CHANNELS.wakeLog, companyId, {
       action: "rejected",
       agentId: assigneeAgentId,
       agentName: target.name,
@@ -500,7 +500,7 @@ function registerActionHandlers(ctx: PluginContext): void {
     // Resume if paused
     if (agent.status === "paused") {
       try {
-        await ctx.agents.resume({ agentId, companyId });
+        await ctx.agents.resume(agentId, companyId);
       } catch { /* may not be pausable */ }
     }
 
@@ -656,7 +656,7 @@ const plugin: PaperclipPlugin = definePlugin({
           const agent = agentsById.get(agentId);
           if (agent?.status === "paused") {
             try {
-              await pluginCtx.agents.resume({ agentId, companyId });
+              await pluginCtx.agents.resume(agentId, companyId);
             } catch { /* best effort */ }
           }
         }

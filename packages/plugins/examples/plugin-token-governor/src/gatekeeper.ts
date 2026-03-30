@@ -9,6 +9,12 @@ import { DEFAULT_CONFIG } from "./constants.js";
 export function isExempt(agent: AgentRecord, config: GovernorConfig): boolean {
   if (config.exemptAgentIds.includes(agent.id)) return true;
   if (agent.role && config.exemptRoles.includes(agent.role)) return true;
+  // Also check agent name — in many deployments the CEO has role "agent"
+  // but name "ceo", and the exemptRoles config uses "ceo" by default.
+  const nameLower = agent.name?.toLowerCase() ?? "";
+  if (config.exemptRoles.some((r) => r.toLowerCase() === nameLower)) return true;
+  // Agents with no reportsTo are root agents (CEO equivalent)
+  if (agent.reportsTo === null) return true;
   return false;
 }
 

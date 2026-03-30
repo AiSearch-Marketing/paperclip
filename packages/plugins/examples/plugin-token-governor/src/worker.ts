@@ -337,8 +337,11 @@ async function reconcileJob(ctx: PluginContext): Promise<void> {
         continue;
       }
 
-      // If agent is idle (not paused, not running), re-pause it
-      if (agent.status === "idle" && !activeGovernedRuns.has(agentId)) {
+      // If agent is idle (not paused, not running), re-pause it.
+      // Clear stale activeGovernedRuns entries for idle agents — the run
+      // completion event may have been missed.
+      if (agent.status === "idle") {
+        activeGovernedRuns.delete(agentId);
         await rePauseAgent(ctx, agentId, companyId);
         await appendWakeLog(ctx, {
           agentId,

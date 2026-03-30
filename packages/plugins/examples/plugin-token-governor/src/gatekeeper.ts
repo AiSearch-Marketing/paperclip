@@ -198,6 +198,7 @@ export async function wakeAgent(
     }
     // Invoke it with the wake reason
     await ctx.agents.invoke(agent.id, agent.companyId, {
+      prompt: `You have been woken by the Token Governor plugin. Reason: ${reason}. Check your assignments and proceed.`,
       reason,
     });
     return true;

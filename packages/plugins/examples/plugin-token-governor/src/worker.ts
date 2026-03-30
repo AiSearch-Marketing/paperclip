@@ -107,10 +107,11 @@ async function handleIssueEvent(ctx: PluginContext, event: PluginEvent): Promise
     }, config);
 
     // Emit to stream for live UI updates
-    ctx.streams.emit(STREAM_CHANNELS.wakeLog, companyId, {
+    ctx.streams.emit(STREAM_CHANNELS.wakeLog, {
       action: "approved",
       agentId: assigneeAgentId,
       agentName: target.name,
+      companyId,
       reason,
     });
   } else {
@@ -128,10 +129,11 @@ async function handleIssueEvent(ctx: PluginContext, event: PluginEvent): Promise
       durationMs: null,
     }, config);
 
-    ctx.streams.emit(STREAM_CHANNELS.wakeLog, companyId, {
+    ctx.streams.emit(STREAM_CHANNELS.wakeLog, {
       action: "rejected",
       agentId: assigneeAgentId,
       agentName: target.name,
+      companyId,
       reason,
     });
   }

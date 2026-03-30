@@ -57,12 +57,19 @@ let pluginCtx: PluginContext | null = null;
 async function handleIssueEvent(ctx: PluginContext, event: PluginEvent): Promise<void> {
   const config = await getConfig(ctx);
   const companyId = event.companyId;
-  const payload = event.payload as Record<string, unknown> | null;
-  if (!payload || !companyId) return;
+  if (!companyId || !event.entityId) return;
 
-  // Extract assignee from the event payload
+  // The event payload only contains { title, identifier }, not the assignee.
+  // Fetch the full issue to get the assigneeAgentId.
+  let issue: Record<string, unknown>;
+  try {
+    issue = (await ctx.issues.get(event.entityId, companyId)) as unknown as Record<string, unknown>;
+  } catch {
+    return; // Issue not found or not accessible
+  }
+
   const assigneeAgentId =
-    typeof payload.assigneeAgentId === "string" ? payload.assigneeAgentId : null;
+    typeof issue.assigneeAgentId === "string" ? issue.assigneeAgentId : null;
   if (!assigneeAgentId) return;
 
   const managed = await getManagedAgentIds(ctx);

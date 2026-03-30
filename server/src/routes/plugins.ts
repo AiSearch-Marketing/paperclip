@@ -139,6 +139,14 @@ const BUNDLED_PLUGIN_EXAMPLES: AvailablePluginExample[] = [
     localPath: "packages/plugins/examples/plugin-kitchen-sink-example",
     tag: "example",
   },
+  {
+    packageName: "@paperclipai/plugin-token-governor",
+    pluginKey: "paperclip-token-governor",
+    displayName: "Token Governor",
+    description: "Dormant-until-called agent gatekeeper. Keeps agents paused until their manager or the CEO delegates work, then re-pauses after completion. Tracks token spend, prevents wasted heartbeats, and provides optimization recommendations.",
+    localPath: "packages/plugins/examples/plugin-token-governor",
+    tag: "example",
+  },
 ];
 
 function listBundledPluginExamples(): AvailablePluginExample[] {

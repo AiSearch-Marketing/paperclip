@@ -23,7 +23,15 @@ This compiles the TypeScript source and bundles the React UI:
 - `dist/worker.js` — Worker process entry point
 - `dist/ui/index.js` — Bundled React components
 
-### Step 2: Install via the Paperclip API
+### Step 2: Install via the Plugin Manager UI
+
+1. Navigate to **Instance Settings** > **Plugins**
+2. The Token Governor should appear under **Available Plugins** with an "Example" badge
+3. Click **Install** next to it
+
+The plugin is registered as a bundled example in `server/src/routes/plugins.ts`, so Paperclip discovers it automatically when the directory exists.
+
+### Alternative: Install via the Paperclip API
 
 ```bash
 # Install from local path
